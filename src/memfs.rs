@@ -285,6 +285,7 @@ impl DavFileSystem for MemFs {
         future::ready(true).boxed()
     }
 
+    #[cfg(feature = "proppatch")]
     fn patch_props<'a>(
         &'a self,
         path: &'a DavPath,

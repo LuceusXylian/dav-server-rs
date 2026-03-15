@@ -263,6 +263,7 @@ pub trait DavFileSystem {
     ///
     /// The default implementation returns [`FsError::NotImplemented`].
     #[allow(unused_variables)]
+    #[cfg(feature = "proppatch")]
     fn patch_props<'a>(
         &'a self,
         path: &'a DavPath,
@@ -473,6 +474,7 @@ where
     ///
     /// The default implementation returns [`FsError::NotImplemented`].
     #[allow(unused_variables)]
+    #[cfg(feature = "proppatch")]
     fn patch_props<'a>(
         &'a self,
         path: &'a DavPath,
@@ -614,6 +616,7 @@ impl<Fs: DavFileSystem + Clone + Send + Sync> GuardedFileSystem<()> for Fs {
         DavFileSystem::have_props(self, path)
     }
 
+    #[cfg(feature = "proppatch")]
     fn patch_props<'a>(
         &'a self,
         path: &'a DavPath,

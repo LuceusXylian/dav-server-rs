@@ -531,6 +531,7 @@ impl<C: Clone + Send + Sync + 'static> DavInner<C> {
         }
     }
 
+    #[cfg(feature = "proppatch")]
     pub(crate) async fn handle_proppatch(
         self,
         req: &Request<()>,
@@ -1424,13 +1425,16 @@ fn element_to_davprop(elem: &Element) -> DavProp {
 
 fn davprop_to_element(prop: DavProp) -> Element {
     if let Some(xml) = prop.xml {
+        let txt: String = xml.clone().try_into().unwrap();
+        println!("      {txt}");
         match Element::parse2(Cursor::new(xml)) {
             Ok(result) => {
+                println!("davprop_to_element result {:?}", result);
                 return result;
             }
             Err(error) => {
                 log::error!("davprop_to_element(): {}. Please check your GuardedFileSystem.get_props() implementation.
-                    'xml'should include complete xml tag. Use DavProp::new() to easy create a DavProp with valid xml syntax.", error);
+                    'xml' should include complete xml tag. Use DavProp::new() to easy create a DavProp with valid xml syntax.", error);
             }
         }
     }

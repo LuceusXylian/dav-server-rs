@@ -578,7 +578,10 @@ where
         match method {
             DavMethod::Options => self.handle_options(&req).await,
             DavMethod::PropFind => self.handle_propfind(&req, &body_data).await,
+            #[cfg(feature = "proppatch")]
             DavMethod::PropPatch => self.handle_proppatch(&req, &body_data).await,
+            #[cfg(not(feature = "proppatch"))]
+            DavMethod::PropPatch => Err(DavError::StatusClose(StatusCode::NOT_IMPLEMENTED)),
             DavMethod::MkCol => self.handle_mkcol(&req).await,
             DavMethod::Delete => self.handle_delete(&req).await,
             DavMethod::Lock => self.handle_lock(&req, &body_data).await,

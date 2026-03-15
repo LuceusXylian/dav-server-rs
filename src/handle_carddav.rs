@@ -66,11 +66,6 @@ impl<C: Clone + Send + Sync + 'static> DavInner<C> {
         // Create the addressbook collection
         self.fs.create_dir(&path, &self.credentials).await?;
 
-        // Set addressbook-specific properties to identify this as an addressbook collection
-        // Note: This may fail if the filesystem doesn't support properties, but that's OK
-        // because is_addressbook() uses path-based detection as a fallback
-        let _ = self.set_addressbook_properties(&path).await;
-
         let mut resp = Response::new(Body::empty());
         *resp.status_mut() = StatusCode::CREATED;
         resp.headers_mut().typed_insert(headers::ContentLength(0));
@@ -506,32 +501,5 @@ impl<C: Clone + Send + Sync + 'static> DavInner<C> {
         }));
 
         Ok(resp)
-    }
-
-    /// Set addressbook-specific properties to identify a directory as an addressbook collection
-    async fn set_addressbook_properties(&self, path: &DavPath) -> DavResult<()> {
-        use crate::fs::DavProp;
-
-        // Set supported-address-data property
-        let addr_data_prop = DavProp {
-            name: "supported-address-data".to_string(),
-            prefix: Some("CARD".to_string()),
-            namespace: Some(NS_CARDDAV_URI.to_string()),
-            xml: Some(b"<CARD:supported-address-data xmlns:CARD=\"urn:ietf:params:xml:ns:carddav\"><CARD:address-data-type content-type=\"text/vcard\" version=\"3.0\"/><CARD:address-data-type content-type=\"text/vcard\" version=\"4.0\"/></CARD:supported-address-data>".to_vec()),
-        };
-
-        // Set addressbook-description property
-        let desc_prop = DavProp {
-            name: "addressbook-description".to_string(),
-            prefix: Some("CARD".to_string()),
-            namespace: Some(NS_CARDDAV_URI.to_string()),
-            xml: Some(b"<CARD:addressbook-description xmlns:CARD=\"urn:ietf:params:xml:ns:carddav\">Address Book Collection</CARD:addressbook-description>".to_vec()),
-        };
-
-        // Save properties using patch_props (true = set property)
-        let patch = vec![(true, addr_data_prop), (true, desc_prop)];
-        self.fs.patch_props(path, patch, &self.credentials).await?;
-
-        Ok(())
     }
 }

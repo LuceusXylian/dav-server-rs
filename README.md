@@ -47,6 +47,8 @@ Currently [passes the "basic", "copymove", "props", "locks" and "http"
 checks][README_litmus] of the Webdav Litmus Test testsuite. That's all of the base
 [RFC4918] webdav specification.
 
+- In most implementations "proppatch" is not needed. If you do need it then specify the "proppatch" feature, otherwise only specify the features you need. The "proppatch" feature is on by default.
+
 The litmus test suite also has tests for RFC3744 "acl" and "principal",
 RFC5842 "bind", and RFC3253 "versioning". Those we do not support right now.
 
